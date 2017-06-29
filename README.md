@@ -31,7 +31,7 @@ remember the hex-address like above, that is address of your account's wallet in
 
 6. Click on **Create** button and deploy smart-conrtact to your private blockchain. After deploy you will see three inputs with buttons, one for each function in smart-contract.
 
-7. Call the addDomain function with domain (for example) "google" and ipaddr "8.8.8.8".
+7. Call the setDomain function with domain (for example) "google" and ipaddr "8.8.8.8".
 
 ![Deploy Solidity smart-contract](http://s019.radikal.ru/i610/1706/3b/7a1a953dc186.png)
 

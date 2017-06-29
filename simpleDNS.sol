@@ -8,10 +8,8 @@ contract simpleDNS {
  
     mapping (string => Record) records;
     
-    function addDomain(string _domain, string _ipaddr) {
-        if (records[_domain].owner != address(0x0)
-        && records[_domain].owner != msg.sender) { return; }
-        
+    function setDomain(string _domain, string _ipaddr) {
+        require(records[_domain].owner == address(0x0) || records[_domain].owner == msg.sender);
         records[_domain] = Record(msg.sender, _ipaddr);
     }
     
@@ -20,8 +18,7 @@ contract simpleDNS {
     }
     
     function transfer(string _domain, address _to) {
-        if (records[_domain].owner != msg.sender) { throw; }
- 
+        require(records[_domain].owner == msg.sender);
         records[_domain].owner = _to;
     }    
 }
