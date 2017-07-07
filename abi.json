@@ -18,6 +18,24 @@
 		"stateMutability": "nonpayable"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_domain",
+				"type": "string"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "transfer",
+		"outputs": [],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "nonpayable"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -35,23 +53,5 @@
 		"payable": false,
 		"type": "function",
 		"stateMutability": "view"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_domain",
-				"type": "string"
-			},
-			{
-				"name": "_to",
-				"type": "address"
-			}
-		],
-		"name": "transfer",
-		"outputs": [],
-		"payable": false,
-		"type": "function",
-		"stateMutability": "nonpayable"
 	}
 ]
