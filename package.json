@@ -1,5 +1,5 @@
 {
-  "name": "blockchain-simple-dns",
+  "name": "blockchain-dns",
   "version": "1.0.0",
   "description": "Simple DNS infrastructure and server based on Ethereum blockchain and Solidity smart-contract",
   "main": "simpleDNS.js",
@@ -8,23 +8,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ilyapt/blockchain-simple-dns.git"
+    "url": "git+https://github.com/ilyapt/blockchain-dns.git"
   },
   "keywords": [
     "blockchain",
     "ethereum",
     "solidity",
-    "smart",
-    "contract",
-    "node",
+    "smartcontract",
+    "nodejs",
     "dns"
   ],
   "author": "Ilya Petrusenko",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ilyapt/blockchain-simple-dns/issues"
+    "url": "https://github.com/ilyapt/blockchain-dns/issues"
   },
-  "homepage": "https://github.com/ilyapt/blockchain-simple-dns#readme",
+  "homepage": "https://github.com/ilyapt/blockchain-dns#readme",
   "dependencies": {
     "native-dns": "^0.7.0",
     "web3": "^0.19.1"

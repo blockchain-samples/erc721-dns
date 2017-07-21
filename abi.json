@@ -8,7 +8,7 @@
 			},
 			{
 				"name": "_ipaddr",
-				"type": "string"
+				"type": "uint32"
 			}
 		],
 		"name": "setDomain",
@@ -45,6 +45,10 @@
 		],
 		"name": "getDomain",
 		"outputs": [
+			{
+				"name": "",
+				"type": "uint32"
+			},
 			{
 				"name": "",
 				"type": "string"
