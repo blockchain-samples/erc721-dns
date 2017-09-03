@@ -1,9 +1,9 @@
 pragma solidity ^0.4.0;
  
-contract simpleDNS {
+contract blockchainDNS {
     struct Record {
         address owner;
-        uint32 ipaddr;
+        uint32[] ipaddr;
     }
  
     mapping (string => Record) records;
@@ -17,7 +17,7 @@ contract simpleDNS {
         _;
     }
     
-    function setDomain(string _domain, uint32 _ipaddr) isDomainName(_domain) {
+    function setDomain(string _domain, uint32[] _ipaddr) isDomainName(_domain) {
         require(records[_domain].owner == address(0x0) || records[_domain].owner == msg.sender);
         records[_domain] = Record(msg.sender, _ipaddr);
     }
@@ -37,10 +37,14 @@ contract simpleDNS {
         return string(result);
     }
     
-    function getDomain(string _domain) isDomainName(_domain) constant returns(uint32, string) {
-        return (records[_domain].ipaddr, uint2ip(records[_domain].ipaddr));
+    function getServersCount(string _domain) isDomainName(_domain) constant returns(uint) {
+        return records[_domain].ipaddr.length;
     }
     
+    function getServer(string _domain, uint idx) isDomainName(_domain) constant returns(uint32, string) {
+        return (records[_domain].ipaddr[idx], uint2ip(records[_domain].ipaddr[idx]));
+    }
+
     function transfer(string _domain, address _to) isDomainName(_domain) {
         require(records[_domain].owner == msg.sender);
         records[_domain].owner = _to;

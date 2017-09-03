@@ -7,16 +7,19 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 const abi = require('./abi.json');
 const contractAbi = web3.eth.contract(abi);
 
-const contractAddr = "0xbd5da0c6c4257fdbb439532ee35ea742c5bb2b21"; // replace this
+const contractAddr = "0xb67f0f6b247371cd12c3649b8a12b6f2a6351b62"; // replace this
 
 const myContract = contractAbi.at(contractAddr);
 
 server.on('request', (request, response) => {
   let name = request.question[0].name;
   try {
-    let addr = myContract.getDomain.call(name, { to: contractAddr });
-    if (addr) {
-      response.answer.push(dns.A({ name: name, address: addr[1], ttl: 600 }));
+    let count = myContract.getServersCount.call(name, { to: contractAddr });
+    for (let i = 0; i < count; i++) {
+      let addr = myContract.getServer(name, i, { to: contractAddr });
+      if (addr) {
+        response.answer.push(dns.A({ name: name, address: addr[1], ttl: 600 }));
+      }
     }
   } catch(error) {
     console.log(error);

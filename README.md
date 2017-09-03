@@ -30,15 +30,19 @@ Passphrase:
 
 6. Click on **Create** button and deploy smart-conrtact to your private blockchain. After deploy you will see three inputs with buttons, one for each function in smart-contract.
 
-7. Call the setDomain function with domain (for example) "google" and IP address 134744072 (this is integer for "8.8.8.8").
+7. Call the setDomain function with domain (for example) "google" and IP address [134744072,134743044] (these is integer for "8.8.8.8" and "8.8.4.4").
 
 ![Deploy Solidity smart-contract](http://s019.radikal.ru/i610/1706/3b/7a1a953dc186.png)
 
-8. Try to call getDomain function with domain "google". It must return 134744072 and "8.8.8.8".
+8. Try to call getServersCount function with domain "google". It must return 2.
 
-9. Copy and remember contract's hex-address (button "**copy address**" above the contract inputs)
+9. Call getServer with domain "google" and index 0. It must return 134744072 and "8.8.8.8".
 
-10. Open simpleDNS.js file in your favorite editor and replace hex-adresses for **contractAddr**. Use address you got on the previos step.
+10. Call getServer with domain "google" and index 1. It must return 134743044 and "8.8.4.4".
+
+11. Copy and remember contract's hex-address (button "**copy address**" above the contract inputs)
+
+12. Open simpleDNS.js file in your favorite editor and replace hex-adresses for **contractAddr**. Use address you got on the previos step.
 ```
 ...
 const abi = require('./abi.json');
@@ -48,14 +52,14 @@ const contractAddr = "0xec13aaa7d76552708fcc571844652f27e09b755f";
 ...
 ```
 
-11. Save and close this file, install the required modules and run server.
+13. Save and close this file, install the required modules and run server.
 
 ```
 $ npm install
 $ node simpleDNS.js
 ```
 
-12. Open other system console and try to use *nslookup* to get address for domain you saved on step 7.
+14. Open other system console and try to use *nslookup* to get address for domain you saved on step 7.
 
 ```
 $ nslookup -port=1053 google. localhost
@@ -65,6 +69,8 @@ Address:	127.0.0.1#1053
 Non-authoritative answer:
 Name:	google
 Address: 8.8.8.8
+Name:	google
+Address: 8.8.4.4
 ```
 
 *In this lab you stored domain's information and address in your private blockchain and got it via simple server.*

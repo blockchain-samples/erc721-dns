@@ -8,7 +8,7 @@
 			},
 			{
 				"name": "_ipaddr",
-				"type": "uint32"
+				"type": "uint32[]"
 			}
 		],
 		"name": "setDomain",
@@ -41,9 +41,13 @@
 			{
 				"name": "_domain",
 				"type": "string"
+			},
+			{
+				"name": "idx",
+				"type": "uint256"
 			}
 		],
-		"name": "getDomain",
+		"name": "getServer",
 		"outputs": [
 			{
 				"name": "",
@@ -52,6 +56,25 @@
 			{
 				"name": "",
 				"type": "string"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_domain",
+				"type": "string"
+			}
+		],
+		"name": "getServersCount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
