@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
  
-contract blockchainDNS {
+contract BlockchainDNS {
     struct Record {
         address owner;
         uint32[] ipaddr;

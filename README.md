@@ -3,63 +3,52 @@
 
 *This project works in private blockchain and doesn't need real coins, wallets etc*
 
-1. Download the [go-ethereum client (geth)](https://geth.ethereum.org/downloads/) and run it on developer mode with private blockchain, rpc-server and console.
+1. Install the Truffle framework and testrpc.
 
-`$ geth --dev --rpc --rpccorsdomain "*" --rpcapi "admin,miner,personal,eth,net,web3" console`
+`$ sudo npm install -g truffle ethereumjs-testrpc`
 
-2. In geth console create account with password "qwerty" and unlock it repeat "qwerty" when asked passphase
+2. Run the Ethereum testrpc.
 
-```
-> personal.newAccount("qwerty")
-"0xc79ca30e48f5767d0ad1a34da156c6d99b653778"
-> personal.unlockAccount(eth.accounts[0])
-Passphrase:
-```
+`$ sudo testrpc`
 
-3. Start mining in geth console.
+3. Go to other terminal, change directory to *contracts* and run tests.
 
 ```
-> miner.start()
+$ truffle test
+
+Using network 'development'.
+
+Compiling ./contracts/blockchainDNS.sol...
+
+.
+.
+.
+
+  Contract: Simple test
+    ✓ Set google name servers (231ms)
+    ✓ Check google name servers count (156ms)
+    ✓ Check google first name server (307ms)
+    ✓ Check google second name server (246ms)
+
+
+    0xe006fa884a8b0600966fa84e155f665f85d553c9
+
+
+  4 passing (990ms)
 ```
 
-4. Launch web browser with [Remix — online Solidity IDE](http://ethereum.github.io/browser-solidity/) and open there simpleDNS.sol Solidity file with smart-contract.
+* **0xe006fa884a8b0600966fa84e155f665f85d553c9** is a contract address (your will different).*
 
-5. Connect it to your private blockchain.
-
-![Remix — online Solidity IDE](http://s018.radikal.ru/i500/1706/71/cfdd19338c45.png)
-
-6. Click on **Create** button and deploy smart-conrtact to your private blockchain. After deploy you will see three inputs with buttons, one for each function in smart-contract.
-
-7. Call the setDomain function with domain (for example) "google" and IP address [134744072,134743044] (these is integer for "8.8.8.8" and "8.8.4.4").
-
-![Deploy Solidity smart-contract](http://s019.radikal.ru/i610/1706/3b/7a1a953dc186.png)
-
-8. Try to call getServersCount function with domain "google". It must return 2.
-
-9. Call getServer with domain "google" and index 0. It must return 134744072 and "8.8.8.8".
-
-10. Call getServer with domain "google" and index 1. It must return 134743044 and "8.8.4.4".
-
-11. Copy and remember contract's hex-address (button "**copy address**" above the contract inputs)
-
-12. Open simpleDNS.js file in your favorite editor and replace hex-adresses for **contractAddr**. Use address you got on the previos step.
-```
-...
-const abi = require('./abi.json');
-const contractAbi = web3.eth.contract(abi);
-
-const contractAddr = "0xec13aaa7d76552708fcc571844652f27e09b755f";
-...
-```
-
-13. Save and close this file, install the required modules and run server.
+4. Change directory back, install modules and run DNS server with your contract address.
 
 ```
 $ npm install
-$ node simpleDNS.js
+$ node blockchainDNS.js 0xe006fa884a8b0600966fa84e155f665f85d553c9
 ```
 
-14. Open other system console and try to use *nslookup* to get address for domain you saved on step 7.
+*Don't remember use your contract address*
+
+5. Open other system console and try to use *nslookup* to get address for google domain.
 
 ```
 $ nslookup -port=1053 google. localhost
@@ -72,7 +61,5 @@ Address: 8.8.8.8
 Name:	google
 Address: 8.8.4.4
 ```
-
-*In this lab you stored domain's information and address in your private blockchain and got it via simple server.*
 
 **Enjoy your experiments with blockchain and smart-contracts.**

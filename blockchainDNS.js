@@ -7,7 +7,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 const abi = require('./abi.json');
 const contractAbi = web3.eth.contract(abi);
 
-const contractAddr = "0xb67f0f6b247371cd12c3649b8a12b6f2a6351b62"; // replace this
+const contractAddr = process.argv[2];
 
 const myContract = contractAbi.at(contractAddr);
 
