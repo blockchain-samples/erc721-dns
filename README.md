@@ -39,7 +39,11 @@ Compiling ./contracts/blockchainDNS.sol...
 
 * **0xe006fa884a8b0600966fa84e155f665f85d553c9** is a contract address (your will different).*
 
-4. Change directory back, install modules and run DNS server with your contract address.
+4. Compile the artifacts.
+
+` $ truffle compile`
+
+5. Change directory to *dns_server*, install modules and run DNS server with your contract address.
 
 ```
 $ npm install
@@ -48,7 +52,7 @@ $ node blockchainDNS.js 0xe006fa884a8b0600966fa84e155f665f85d553c9
 
 *Don't remember use your contract address*
 
-5. Open other system console and try to use *nslookup* to get address for google domain.
+6. Open other system console and try to use *nslookup* to get address for google domain.
 
 ```
 $ nslookup -port=1053 google. localhost

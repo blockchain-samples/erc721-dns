@@ -4,8 +4,8 @@ const server = dns.createServer();
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
-const abi = require('./abi.json');
-const contractAbi = web3.eth.contract(abi);
+const abi = require('../contract/build/contracts/BlockchainDNS.json');
+const contractAbi = web3.eth.contract(abi.abi);
 
 const contractAddr = process.argv[2];
 
