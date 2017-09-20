@@ -2,7 +2,7 @@
   "name": "blockchain-dns",
   "version": "1.0.0",
   "description": "Simple DNS infrastructure and server based on Ethereum blockchain and Solidity smart-contract",
-  "main": "blockchainDNS.js",
+  "main": "simpleDNS.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/ilyapt/blockchain-dns#readme",
   "dependencies": {
     "native-dns": "^0.7.0",
+    "lodash": "^4.17.4",
     "web3": "^0.19.1"
   }
 }

@@ -11,7 +11,7 @@
 
 `$ sudo testrpc`
 
-3. Go to other terminal, change directory to *contracts* and run tests.
+3. Go to other terminal and run tests.
 
 ```
 $ truffle test
@@ -43,11 +43,11 @@ Compiling ./contracts/blockchainDNS.sol...
 
 ` $ truffle compile`
 
-5. Change directory to *dns_server*, install modules and run DNS server with your contract address.
+5. Install modules and run DNS server with your contract address.
 
 ```
 $ npm install
-$ node blockchainDNS.js 0xe006fa884a8b0600966fa84e155f665f85d553c9
+$ node server/index.js 0xe006fa884a8b0600966fa84e155f665f85d553c9
 ```
 
 *Don't remember use your contract address*
