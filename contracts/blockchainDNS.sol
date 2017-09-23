@@ -7,6 +7,21 @@ contract BlockchainDNS {
     }
  
     mapping (string => Record) records;
+    mapping (address => string[]) public ownerDomains;
+    mapping (string => uint) ownerDomainIdx;
+    
+    function addOwnerDomain(address owner, string domain) private {
+        ownerDomains[owner].push(domain);
+        ownerDomainIdx[domain] = ownerDomains[owner].length - 1;
+    }
+    
+    function delOwnerDomain(address owner, string domain) private {
+        uint idx = ownerDomainIdx[domain];
+        uint last = ownerDomains[owner].length - 1;
+        ownerDomainIdx[domain] = idx;
+        ownerDomains[owner][idx] = ownerDomains[owner][last];
+        ownerDomains[owner].length = last;
+    }
 
     modifier isDomainName (string domain) {
         bytes memory tmp = bytes(domain);
@@ -19,6 +34,9 @@ contract BlockchainDNS {
     
     function setDomain(string _domain, uint32[] _ipaddr) isDomainName(_domain) {
         require(records[_domain].owner == address(0x0) || records[_domain].owner == msg.sender);
+        if (records[_domain].owner == address(0x0)) {
+            addOwnerDomain(msg.sender, _domain);
+        }
         records[_domain] = Record(msg.sender, _ipaddr);
     }
     
@@ -44,9 +62,15 @@ contract BlockchainDNS {
     function getServer(string _domain, uint idx) isDomainName(_domain) constant returns(uint32, string) {
         return (records[_domain].ipaddr[idx], uint2ip(records[_domain].ipaddr[idx]));
     }
+    
+    function getYourDomainsCount() constant returns(uint) {
+        return ownerDomains[msg.sender].length;
+    }
 
     function transfer(string _domain, address _to) isDomainName(_domain) {
         require(records[_domain].owner == msg.sender);
         records[_domain].owner = _to;
-    }
+        delOwnerDomain(msg.sender, _domain);
+        addOwnerDomain(_to, _domain);
+   }
 }
