@@ -1,0 +1,28 @@
+.container {
+    width: 900px;
+    margin: 50px auto;
+}
+
+table#tabs {
+    border: 0;
+    width: 100%;
+}
+
+table#tabs td.left {
+    border-right: 1px dashed lightgray;
+    width: 50%;
+    padding: 10;
+    vertical-align: top
+}
+
+table#tabs td.right {
+    width: 50%;
+    padding: 10;
+    vertical-align: top
+}
+
+.divider {
+    border-top: 1px dashed lightgray;
+    width: 90%;
+    margin: 0 auto;
+}

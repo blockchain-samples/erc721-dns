@@ -3,7 +3,7 @@ const BlockchainDNS = artifacts.require("./BlockchainDNS.sol");
 contract('Simple test', (accounts) => {
     let dns;
 
-    before(function(done) {
+    before((done) => {
         BlockchainDNS.deployed().then((_dns) => {
             dns = _dns;
             done();
@@ -104,9 +104,5 @@ contract('Simple test', (accounts) => {
             assert.equal(domain, 'google');
             done();
         });
-    });
-
-    after(function() {
-        console.log('\n\n   ', dns.address);
     });
 });

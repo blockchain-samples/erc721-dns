@@ -1,0 +1,4 @@
+{
+    "plugins": ["transform-runtime", "react-hot-loader/babel"],
+    "presets": ["es2015", "stage-2", "react"]
+}
