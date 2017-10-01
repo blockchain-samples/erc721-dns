@@ -46,14 +46,14 @@ export function init(cb) {
 
 export function getDomains (contract, addr, that) {
     that.setState({domains: []},
-        () => contract.getYourDomainsCount((err, res) => {
+        () => contract.domainListingLen(addr, (err, res) => {
             if (err) return notification.error({
                 message: 'Contract error',
                 description: err.toString()    
             });
 
             for (let i = 0; i < res.toNumber(); i++) {
-                contract.ownerDomains(addr, i, (err, res) => {
+                contract.domainListing(addr, i, (err, res) => {
                     if (err) return notification.error({
                         message: 'Contract error',
                         description: err.toString()    
@@ -67,14 +67,14 @@ export function getDomains (contract, addr, that) {
 
 export function getNameServers (contract, domain, that) {
     that.setState({selected: domain, nameservers: []}, () => 
-        contract.getServersCount(domain, (err, res) => {
+        contract.domainServersCount(domain, (err, res) => {
             if (err) return notification.error({
                 message: 'Contract error',
                 description: err.toString()    
             });
 
             for(let i = 0; i < res.toNumber(); i++) {
-                contract.getServer(domain, i, (err, res) => {
+                contract.domainServer(domain, i, (err, res) => {
                     if (err) return notification.error({
                         message: 'Contract error',
                         description: err.toString()    

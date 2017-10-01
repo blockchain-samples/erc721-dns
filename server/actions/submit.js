@@ -31,13 +31,15 @@ function txProcess (err, tx, contract, addr, that) {
 
 export function saveDomain (contract, addr, that) {
     return (form) =>
-        contract.setDomain(form.domain, form.nameservers, (err, tx) =>
+        contract.domainSet(form.domain, form.nameservers, (err, tx) =>
             txProcess(err, tx, contract, addr, that));
 }
 
 export function transferDomain (contract, addr, that) {
-    return (form) =>
+    return (form) => {
+        console.log('TRANSFER', form.domain, form.address);
         contract.transfer(form.domain, form.address, (err, tx) =>
             txProcess(err, tx, contract, addr, that));
+    };
 }
 
