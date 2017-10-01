@@ -51,7 +51,7 @@ export default class extends React.Component {
                             nameservers={this.state.nameservers}
                             saveDomain={saveDomain(this.contract, this.state.addr, this)}
                         />
-                        {!!this.state.selected && <div><div class="divider"/>
+                        {!!this.state.selected && <div><div className="divider"/>
                             <TransferForm
                                 web3={web3}
                                 domain={this.state.selected}

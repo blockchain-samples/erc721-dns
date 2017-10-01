@@ -38,7 +38,7 @@ export function saveDomain (contract, addr, that) {
 export function transferDomain (contract, addr, that) {
     return (form) => {
         console.log('TRANSFER', form.domain, form.address);
-        contract.transfer(form.domain, form.address, (err, tx) =>
+        contract.transfer(form.domain, form.address, {gas: 200000}, (err, tx) =>
             txProcess(err, tx, contract, addr, that));
     };
 }
