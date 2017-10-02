@@ -9,12 +9,9 @@ contract DomainListingByOwner {
         return domainListing[owner].length;
     }
 
-    event ListingUpdated(address owner, string domain, bool added);
-
     function addDomainToListing(address owner, string domain) internal {
         domainListing[owner].push(domain);
         domainListingIdx[domain] = domainListing[owner].length;
-        ListingUpdated(owner, domain, true);
     }
     
     function removeDomainFromListing(address owner, string domain) internal {
@@ -27,7 +24,6 @@ contract DomainListingByOwner {
         }
         domainListingIdx[domain] = 0;
         domainListing[owner].length = last;
-        ListingUpdated(owner, domain, false);
     }
 }
 
