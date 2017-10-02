@@ -12,7 +12,7 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     });
 
     it('Check Google', async () => {
-        let count = dns.domainServersCount('google');
+        let count = dns.domainServersLen('google');
         let srv1 = dns.domainServer('google', 0);
         let srv2 = dns.domainServer('google', 1);
         assert.equal((await count).toNumber(), 2);
@@ -29,7 +29,7 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     });
 
     it('Check Comodo', async () => {
-        let count = dns.domainServersCount('comodo');
+        let count = dns.domainServersLen('comodo');
         let srv1 = dns.domainServer('comodo', 0);
         let srv2 = dns.domainServer('comodo', 1);
         assert.equal((await count).toNumber(), 2);
@@ -46,7 +46,7 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     });
 
     it('Check Google again', async () => {
-        let count = dns.domainServersCount('google');
+        let count = dns.domainServersLen('google');
         let srv1 = dns.domainServer('google', 0);
         let srv2 = dns.domainServer('google', 1);
         assert.equal((await count).toNumber(), 2);

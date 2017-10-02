@@ -12,6 +12,10 @@ contract SellOrders {
     event SellOrderAdded(string domain, uint price);
     event SellOrderRemoved(string domain);
 
+    function orderExists (string domain) constant public returns(bool) {
+        return ordersIdx[domain] != 0;
+    }
+
     function sellOrdersLen () constant public returns(uint) {
         return orders.length;
     }

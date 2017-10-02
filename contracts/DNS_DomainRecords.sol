@@ -29,7 +29,7 @@ contract DomainRecords is Inet, DomainListingByOwner {
         DomainTransfered(domain, from, to);
     }
 
-    function domainServersCount(string domain) isDomainName(domain) constant public returns(uint) {
+    function domainServersLen(string domain) isDomainName(domain) constant public returns(uint) {
         return records[domain].servers.length;
     }
 
