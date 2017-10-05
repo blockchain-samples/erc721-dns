@@ -38,7 +38,7 @@ module.exports = async () => {
 
     namesrv.on('request', async (req, res) => {
         let name = req.question[0].name;
-        let count = (await contract.getServersCount(name)).toNumber();
+        let count = (await contract.getServersLen(name)).toNumber();
         let r = _.range(count).map((_, i) => contract.getServer(name, i));
         for (let addr of await Promise.all(r)) {
             res.answer.push(dns.A({ name: name, address: addr[1].toString(), ttl: 600 }));
