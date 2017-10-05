@@ -1,45 +1,107 @@
+import { promisify } from './utils';
 import notification from 'antd/lib/notification';
 import 'antd/lib/notification/style/css';
-import { getDomains } from './receive';
 
-const web3 = window.web3;
-
-function checkReceipt (tx, cb) {
-    web3.eth.getTransactionReceipt(tx, (err, receipt) => {
-        if (err) return notification.error({
-            message: 'Transaction error',
-            description: err.toString()
-        });
-        if (receipt) cb(receipt);
-        else setTimeout(() => this.checkReceipt(tx, cb), 1000);
-    });
+export function saveDomain (form) {
+    return async (dispatch, getState) => {
+        const { contract } = getState();
+        const domainSet = promisify(contract.domainSet);
+        try {
+            let tx = await domainSet(form.domain, form.nameservers);
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.success({
+                message: 'Transaction sent',
+                description: `Transaction been sent with tx hash ${tx}`
+            });
+        } catch (error) {
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
 }
 
-function txProcess (err, tx, contract, addr, that) {
-    if (err) return notification.error({
-        message: 'Transaction error',
-        description: err.toString()
-    });
-
-    notification.success({
-        message: 'Transaction sent',
-        description: `Transaction been sent with tx hash ${tx}`
-    });
-
-    checkReceipt(tx, () => getDomains(contract, addr, that));
+export function transferDomain (form) {
+    return async (dispatch, getState) => {
+        const { contract } = getState();
+        const transfer = promisify(contract.transfer);
+        try {
+            let tx = await transfer(form.domain, form.address, {gas: 200000});
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.success({
+                message: 'Transaction sent',
+                description: `Transaction been sent with tx hash ${tx}`
+            });
+        } catch (error) {
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
 }
 
-export function saveDomain (contract, addr, that) {
-    return (form) =>
-        contract.domainSet(form.domain, form.nameservers, (err, tx) =>
-            txProcess(err, tx, contract, addr, that));
+export function addSellOrder (form) {
+    return async (dispatch, getState) => {
+        const { contract } = getState();
+        const addSellOrder = promisify(contract.addSellOrder);
+        try {
+            let tx = await addSellOrder(form.domain, web3.toWei(form.price, 'ether'));
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.success({
+                message: 'Transaction sent',
+                description: `Transaction been sent with tx hash ${tx}`
+            });
+        } catch (error) {
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
 }
 
-export function transferDomain (contract, addr, that) {
-    return (form) => {
-        console.log('TRANSFER', form.domain, form.address);
-        contract.transfer(form.domain, form.address, {gas: 200000}, (err, tx) =>
-            txProcess(err, tx, contract, addr, that));
-    };
+export function removeSellOrder () {
+    return async (dispatch, getState) => {
+        const { contract, selected } = getState();
+        const removeSellOrder = promisify(contract.removeSellOrder);
+        try {
+            let tx = await removeSellOrder(selected.domain, {gas: 200000});
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.success({
+                message: 'Transaction sent',
+                description: `Transaction been sent with tx hash ${tx}`
+            });
+        } catch (error) {
+            dispatch({ type: 'UNSELECT_DOMAIN' });
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
+}
+
+export function orderBuy (order) {
+    return async (dispatch, getState) => {
+        const { contract } = getState();
+        const orderBuy = promisify(contract.orderBuy);
+        try {
+            let tx = await orderBuy(order.domain, {value: order.price, gas: 200000});
+            return notification.success({
+                message: 'Transaction sent',
+                description: `Transaction been sent with tx hash ${tx}`
+            });
+        } catch (error) {
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
 }
 

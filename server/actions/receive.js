@@ -1,87 +1,91 @@
-import axios from 'axios';
+import { promisify, range } from './utils';
 import notification from 'antd/lib/notification';
 import 'antd/lib/notification/style/css';
 
-const web3 = window.web3;
+export function getDomains () {
+    return async (dispatch, getState) => {
+        const { account, contract } = getState();
+        const domainListingLen = promisify(contract.domainListingLen);
+        const domainListing = promisify(contract.domainListing);
 
-export function init(cb) {
-    if (!web3) return notification.error({
-        message: 'Metamask error',
-        description: 'Metamask plugin not installed. Please install the Metamask plugin.'
-    });
-
-    let request = axios.get('/init');
-
-    web3.eth.getAccounts((err, accs) => {
-        if (err) return notification.error({
-            message: 'Metamask error',
-            description: err.toString()    
-        });
-
-        if (!accs || !accs.length) return notification.error({
-            message: 'Metamask error',
-            description: 'Please login into Metamask'
-        });
-
-        web3.version.getNetwork((err, netId) => {
-            if (err) return notification.error({
-                message: 'Metamask error',
-                description: err.toString()    
+        try {
+            let len = (await domainListingLen(account)).toNumber();
+            let domains = await Promise.all(
+                range(len).map((_, i) => domainListing(account, i))
+            );
+            dispatch({
+                type: 'DOMAINS_RECEIVED',
+                payload: domains.map(domain => domain.toString())
             });
+        } catch (error) {
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()
+            });
+        }
 
-            request
-            .then(res => {
-                if (netId !== res.data.networkId) return notification.error({
-                    message: 'Metamask error',
-                    description: 'Your Metamask plugin connected to wrong network'
-                });
-                cb(accs[0], web3.eth.contract(res.data.abi).at(res.data.contract));
-            }).catch(err => notification.error({
-                message: 'Webserver error',
-                description: err.toString()    
-            }));
-        });
-    });
+    };
 }
 
-export function getDomains (contract, addr, that) {
-    that.setState({domains: []},
-        () => contract.domainListingLen(addr, (err, res) => {
-            if (err) return notification.error({
-                message: 'Contract error',
-                description: err.toString()    
+export function selectDomain ({ domain }) {
+    return async (dispatch, getState) => {
+        dispatch({
+            type: 'DOMAIN_LOADING',
+            payload: true
+        });
+
+        const { contract } = getState();
+        const domainServersLen = promisify(contract.domainServersLen);
+        const domainServer = promisify(contract.domainServer);
+        const orderExists = promisify(contract.orderExists);
+    
+        try {
+            let ordered = orderExists(domain);
+            let len = (await domainServersLen(domain)).toNumber();
+            let nameservers = await Promise.all(
+                range(len).map((_, i) => domainServer(domain, i))
+            );
+            dispatch({
+                type: 'DOMAIN_SELECTED',
+                payload: {
+                    domain: domain,
+                    nameservers: nameservers.map(server => server[1].toString()),
+                    ordered: await ordered
+                }
             });
-
-            for (let i = 0; i < res.toNumber(); i++) {
-                contract.domainListing(addr, i, (err, res) => {
-                    if (err) return notification.error({
-                        message: 'Contract error',
-                        description: err.toString()    
-                    });
-
-                    that.setState(s => ({domains: [...s.domains, res.toString()]}));
-                });
-            }
-    }));
+        } catch (error) {
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    
+    }
 }
 
-export function getNameServers (contract, domain, that) {
-    that.setState({selected: domain, nameservers: []}, () => 
-        contract.domainServersCount(domain, (err, res) => {
-            if (err) return notification.error({
-                message: 'Contract error',
-                description: err.toString()    
+export function getOrders () {
+    return async (dispatch, getState) => {
+        dispatch({
+            type: 'ORDERS_LOADING',
+            payload: true
+        });
+
+        const { contract } = getState();
+        const sellOrdersLen = promisify(contract.sellOrdersLen);
+        const getOrder = promisify(contract.orders);
+
+        try {
+            let len = (await sellOrdersLen()).toNumber();
+            let orders = await Promise.all(range(len).map((_, i) => getOrder(i)));
+            dispatch({
+                type: 'ORDERS_RECEIVED',
+                payload: orders
             });
-
-            for(let i = 0; i < res.toNumber(); i++) {
-                contract.domainServer(domain, i, (err, res) => {
-                    if (err) return notification.error({
-                        message: 'Contract error',
-                        description: err.toString()    
-                    });
-
-                    that.setState(s => ({nameservers: [...s.nameservers, res[1].toString()]}));
-                });
-            }
-    }));
+        } catch (error) {
+            return notification.error({
+                message: 'Contract error',
+                description: error.toString()    
+            });
+        }
+    }
 }

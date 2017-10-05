@@ -1,71 +1,67 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style/css';
 import Alert from 'antd/lib/alert';
 import 'antd/lib/alert/style/css';
-import Table from 'antd/lib/table';
-import 'antd/lib/table/style/css';
 import './index.css';
 
-import DomainForm from './components/DomainForm';
-import TransferForm from './components/TransferForm';
+import { init } from './actions/init';
+import SellOrders from './components/SellOrders';
+import YourDomains from './components/YourDomains';
 
-import { init, getDomains, getNameServers } from './actions/receive';
-import { saveDomain, transferDomain } from './actions/submit';
+const TabPane = Tabs.TabPane;
 
-const web3 = window.web3;
+const AddrAlert = (props) => (
+    <Alert
+        message={(<pre>Your address is <b>{props.account}</b></pre>)}
+        type="success"
+        style={{marginBottom: 20}}
+    />
+);
 
-export default class extends React.Component {
+const CriticalAlert = (props) => (
+    <Alert
+        message={props.critical}
+        type="error"
+        style={{marginBottom: 20}}
+    />
+);
+
+class App extends React.Component {
     state = {domains: []};
 
-    componentDidMount () {
-        init((addr, contract) => {
-            this.contract = contract;
-            this.setState({addr}, () => getDomains(contract, addr, this));
-        });
-    }
+    componentDidMount () { this.props.init(); }
 
     render() {
         return (
             <div className="container">
-                <h1>Blockchain DNS</h1>
+                <h1 style={{marginBottom: 10}}>Blockchain DNS</h1>
 
-                {!!this.state.addr && <Alert
-                    message={`Your address is ${this.state.addr}`}
-                    type="success"
-                    style={{marginBottom: 20}}
-                />}
 
-                <table id="tabs"><tbody>
-                    <tr><td className="left">
-                        <Table
-                            columns={[{title: 'Your domains', dataIndex: 'domain'}]}
-                            rowKey='domain'
-                            dataSource={this.state.domains.map(domain => ({domain}))}
-                            pagination={false}
-                            onRowClick={(r) => getNameServers(this.contract, r.domain, this)}
-                        />
-                    </td><td className="right">
-                        <DomainForm
-                            web3={web3}
-                            disabled={!this.state.addr}
-                            domain={this.state.selected}
-                            nameservers={this.state.nameservers}
-                            saveDomain={saveDomain(this.contract, this.state.addr, this)}
-                        />
-                        {!!this.state.selected && <div><div className="divider"/>
-                            <TransferForm
-                                web3={web3}
-                                domain={this.state.selected}
-                                transferDomain={transferDomain(this.contract, this.state.addr, this)}
-                            />
-                        </div>}
-                    </td></tr>
-                </tbody></table>
+            <Tabs defaultActiveKey="2">
+                <TabPane tab="Domain sell orders" key="1">
+                    {!!this.props.critical && <CriticalAlert {...this.props}/>}
+                    {!!this.props.account && <AddrAlert {...this.props}/>}
+                    <h2>Domain sell orders</h2>
+                    <SellOrders/>
+                </TabPane>
+                <TabPane tab="Your domains" key="2">
+                    {!!this.props.critical && <CriticalAlert {...this.props}/>}
+                    {!!this.props.account && <AddrAlert {...this.props}/>}
+                    {!this.props.critical && <YourDomains />}
+            </TabPane></Tabs>
 
                 <p style={{marginTop: 300}}>
-                    <a href="https://github.com/ilyapt/blockchain-dns" target="_blank">Blockchain DNS</a> (c) Ilya Petrusenko
+                    <a href="https://github.com/ilyapt/blockchain-dns"
+                        target="_blank">Blockchain DNS</a> (c) Ilya Petrusenko
                 </p>
             </div>
         );
     }
 }
 
+export default connect(
+    state => ({ critical: state.critical, account: state.account, orders: state.orders }),
+    { init }
+)(App);

@@ -1,5 +1,4 @@
 import React from 'react';
-import ip from 'ip';
 import Form from 'antd/lib/form';
 import 'antd/lib/form/style/css';
 import Input from 'antd/lib/input';
@@ -8,24 +7,26 @@ import Button from 'antd/lib/button';
 import 'antd/lib/button/style/css';
 import Icon from 'antd/lib/icon';
 import 'antd/lib/icon/style/css';
-import { DomainForm as formLayout } from './formLayouts.js';
-import { isDomainName, isIpAddr } from '../actions/validates.js';
+import { DomainForm as formLayout } from '../formLayouts.js';
+import { isIpAddr } from '../../../actions/validates.js';
 
 const FormItem = Form.Item;
 let uuid = 1;
 
-class DomainForm extends React.Component {
+export default class DynamicInput extends React.Component {
     state = {init: [0]}
-    init = (nameservers) => {
-        if (nameservers) {
-            this.setState({
-                init: nameservers.map((_, i) => i)
-            });
-            uuid = nameservers.length;
+
+    init = (props) => {
+        if (Array.isArray(props.nameservers) && !!props.nameservers.length) {
+            this.setState({ init: props.nameservers.map((_, i) => i) });
+            uuid = props.nameservers.length;
+        } else {
+            this.setState({ init: [0] });
+            uuid = 1;
         }
     }
-    componentDidMount = () => this.init(this.props.nameservers);
-    componentWillReceiveProps = (props) => this.init(props.nameservers);
+    componentDidMount  = () => this.init(this.props);
+    componentWillReceiveProps = (props) => this.init(props);
 
     remove = (k) => {
         const { form } = this.props;
@@ -41,24 +42,11 @@ class DomainForm extends React.Component {
         form.setFieldsValue({ keys: nextKeys });
     }
 
-    onSubmit = (e) => {
-        e.preventDefault();
-        this.props.form.validateFieldsAndScroll((err, values) => {
-            if (!err) {
-                this.props.saveDomain({
-                    domain: values.domain,
-                    nameservers: values.keys.map(i => ip.toLong(values.nameservers[i]))
-                });
-                this.props.form.resetFields();
-            }
-        });
-    }
-
     render() {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         getFieldDecorator('keys', { initialValue: this.state.init });
         const keys = getFieldValue('keys');
-        const formItems = keys.map((k, index) => (
+        const dynamicItems = keys.map((k, index) => (
             <FormItem
                 {...(index === 0 ? formLayout.item : formLayout.tailItem)}
                 label={index === 0 ? 'Nameserver ip address' : ''}
@@ -67,12 +55,9 @@ class DomainForm extends React.Component {
             >
                 {getFieldDecorator(`nameservers[${k}]`, {
                     validateTrigger: ['onChange', 'onBlur'],
-                    rules: [{
-                        required: true,
+                    rules: [{ required: true,
                         message: "Please input nameserver's IP or delete this field.",
-                    }, {
-                        validator: isIpAddr
-                    }],
+                    }, { validator: isIpAddr }],
                     initialValue: this.props.nameservers ? this.props.nameservers[k] : undefined
                 })(
                     <Input placeholder="8.8.8.8" style={{ width: '90%', marginRight: 8 }} />
@@ -87,36 +72,15 @@ class DomainForm extends React.Component {
                 ) : null}
             </FormItem>
         ));
-
-        console.log(this.props.nameservers);
         return (
-            <Form onSubmit={this.onSubmit}>
-                <FormItem
-                    {...formLayout.item}
-                    required={false}
-                    label="Domain"
-                >
-                    {getFieldDecorator('domain', {
-                        rules: [{
-                            validator: isDomainName
-                        }, {
-                            required: true, message: 'Please input domain name',
-                        }],
-                        initialValue: this.props.domain
-                    })( <Input placeholder="google" disabled={!!this.props.domain}/> )}
-                </FormItem>
-                {formItems}
+            <div>
+                {dynamicItems}
                 <FormItem {...formLayout.tailItem}>
                     <Button type="dashed" onClick={this.add} style={{width: '100%'}}>
                         <Icon type="plus" /> Add nameserver
                     </Button>
                 </FormItem>
-                <FormItem {...formLayout.tailItem} style={{textAlign: 'right'}}>
-                    <Button type="primary" htmlType="submit">{!!this.props.domain ? 'Save' : 'Add'} domain</Button>
-                </FormItem>
-            </Form>
+            </div>
         );
     }
 }
-
-export default Form.create()(DomainForm);
