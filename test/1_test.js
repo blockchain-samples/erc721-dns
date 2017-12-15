@@ -100,6 +100,16 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         assert.equal((await token).toString(), googleToken);
     });
 
+    it('First account unsuccessfully tried take unapproved domain', async () => {
+        let error = false;
+        try {
+            await dns.takeOwnership(googleToken);    
+        } catch(e) {
+            error = true;
+        }
+        assert.equal(error, true);
+    });
+
     it('Second account approve Google domain to first account', async () => {
         await dns.approve(accounts[0], googleToken, { from: accounts[1] });
         let spender = await dns.approved(googleToken);
@@ -143,8 +153,18 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         assert.equal(order[1].toNumber(), 5000);
     });
 
+    it('Second account unsuccessfuly tried buy with small price', async () => {
+        let error = false;
+        try {
+            await dns.buyOrder(googleToken, { from: accounts[1], value: 1000 });    
+        } catch(e) {
+            error = true;
+        }
+        assert.equal(error, true);
+    });
+
     it('Second account execute order and buy google', async () => {
-        await dns.buyOrder(googleToken, { from: accounts[1], value: 5000 });
+            await dns.buyOrder(googleToken, { from: accounts[1], value: 5000 });
     });
 
     it('Check first account domains', async () => {
@@ -166,3 +186,4 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         assert.equal(count, 0);
     });
 });
+
