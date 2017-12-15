@@ -1,4 +1,7 @@
 module.exports = {
+    mocha: {
+        enableTimeouts: false
+    },
     networks: {
         development: {
             host: "localhost",

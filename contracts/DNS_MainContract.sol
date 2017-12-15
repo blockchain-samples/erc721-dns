@@ -1,11 +1,11 @@
 pragma solidity ^0.4.0;
 import "./DNS_ERC721.sol";
+import "./DNS_SellOrders.sol";
 import "./DNS_Inet.sol";
 
-contract BlockchainDNS is ERC721, Inet {
+contract BlockchainDNS is ERC721, SellOrders, Inet {
     mapping (uint256 => uint256[]) domainServers;
 
-// Domain methods
     function domainSet(string _domain, uint[] _servers) isDomainName(_domain) public {
         uint256 tokenId = uint256(keccak256(bytes(_domain)));
         address owner = tokenOwners[tokenId];
@@ -31,4 +31,3 @@ contract BlockchainDNS is ERC721, Inet {
         return (addr, uintToIpAddr(addr));
     }
 }
-

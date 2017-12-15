@@ -38,7 +38,7 @@ contract ERC721 {
         ownedTokens[_from].length = last;
     }
 
-    function _transfer(address _from, address _to, uint256 _tokenId) private {
+    function _transfer(address _from, address _to, uint256 _tokenId) internal {
         tokenOwners[_tokenId] = _to;
         _removeToken(_tokenId, _from);
         _addToken(_tokenId, _to);

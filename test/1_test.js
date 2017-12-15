@@ -130,4 +130,39 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         let count = dns.balanceOf(accounts[1]);
         assert.equal((await count).toNumber(), 0);
     });
+
+    it('First account order google to sell', async () => {
+        await dns.addSellOrder(googleToken, 5000);
+    });
+
+    it('Check google in sell orders', async () => {
+        let count = (await dns.sellOrdersLen()).toNumber();
+        let order = await dns.orders(0);
+        assert.equal(count, 1);
+        assert.equal(order[0].toString(), googleToken);
+        assert.equal(order[1].toNumber(), 5000);
+    });
+
+    it('Second account execute order and buy google', async () => {
+        await dns.buyOrder(googleToken, { from: accounts[1], value: 5000 });
+    });
+
+    it('Check first account domains', async () => {
+        let count = dns.balanceOf(accounts[0]);
+        let token = dns.tokenOfOwnerByIndex(accounts[0], 0);
+        assert.equal((await count).toNumber(), 1);
+        assert.equal((await token).toString(), comodoToken);
+    });
+
+    it('Check second account domains', async () => {
+        let count = dns.balanceOf(accounts[1]);
+        let token = dns.tokenOfOwnerByIndex(accounts[1], 0);
+        assert.equal((await count).toNumber(), 1);
+        assert.equal((await token).toString(), googleToken);
+    });
+
+    it('Check no sell orders', async () => {
+        let count = (await dns.sellOrdersLen()).toNumber();
+        assert.equal(count, 0);
+    });
 });
