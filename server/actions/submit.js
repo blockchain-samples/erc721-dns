@@ -25,10 +25,10 @@ export function saveDomain (form) {
 
 export function transferDomain (form) {
     return async (dispatch, getState) => {
-        const { contract } = getState();
+        const { contract, selected } = getState();
         const transfer = promisify(contract.transfer);
         try {
-            let tx = await transfer(form.domain, form.address, {gas: 200000});
+            let tx = await transfer(form.address, selected.token, {gas: 200000});
             dispatch({ type: 'UNSELECT_DOMAIN' });
             return notification.success({
                 message: 'Transaction sent',
@@ -46,10 +46,10 @@ export function transferDomain (form) {
 
 export function addSellOrder (form) {
     return async (dispatch, getState) => {
-        const { contract } = getState();
+        const { contract, selected } = getState();
         const addSellOrder = promisify(contract.addSellOrder);
         try {
-            let tx = await addSellOrder(form.domain, web3.toWei(form.price, 'ether'));
+            let tx = await addSellOrder(selected.token, web3.toWei(form.price, 'ether'));
             dispatch({ type: 'UNSELECT_DOMAIN' });
             return notification.success({
                 message: 'Transaction sent',
@@ -70,7 +70,7 @@ export function removeSellOrder () {
         const { contract, selected } = getState();
         const removeSellOrder = promisify(contract.removeSellOrder);
         try {
-            let tx = await removeSellOrder(selected.domain, {gas: 200000});
+            let tx = await removeSellOrder(selected.token, {gas: 200000});
             dispatch({ type: 'UNSELECT_DOMAIN' });
             return notification.success({
                 message: 'Transaction sent',
@@ -87,11 +87,16 @@ export function removeSellOrder () {
 }
 
 export function orderBuy (order) {
+    console.log('BUY', order);
     return async (dispatch, getState) => {
         const { contract } = getState();
-        const orderBuy = promisify(contract.orderBuy);
+        const buyOrder = promisify(contract.buyOrder);
         try {
-            let tx = await orderBuy(order.domain, {value: order.price, gas: 200000});
+            console.log('BUY', order);
+            let tx = await buyOrder(order.token, {
+                value: web3.toWei(order.price, 'ether'),
+                gas: 200000
+            });
             return notification.success({
                 message: 'Transaction sent',
                 description: `Transaction been sent with tx hash ${tx}`

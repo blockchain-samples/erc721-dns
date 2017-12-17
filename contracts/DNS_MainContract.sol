@@ -1,35 +1,33 @@
 pragma solidity ^0.4.0;
-import "./DNS_DomainRecords.sol";
+import "./DNS_ERC721.sol";
 import "./DNS_SellOrders.sol";
+import "./DNS_Inet.sol";
 
-contract BlockchainDNS is DomainRecords, SellOrders {
+contract BlockchainDNS is ERC721, SellOrders, Inet {
+    mapping (uint256 => uint256[]) domainServers;
 
-    modifier onlyOwner(string domain) {
-        require(msg.sender == records[domain].owner);
-        _;
+    function domainSet(string _domain, uint[] _servers) isDomainName(_domain) public {
+        uint256 tokenId = uint256(keccak256(bytes(_domain)));
+        address owner = tokenOwners[tokenId];
+        require(owner == address(0x0) || owner == msg.sender);
+        if (owner == address(0x0)) {
+            _addToken(tokenId, msg.sender);
+            tokenOwners[tokenId] = msg.sender;
+            metadata[tokenId] = _domain;
+            totalSupply++;
+            Transfer(0x0, msg.sender, tokenId);
+        }
+        domainServers[tokenId] = _servers;
     }
 
-    function transfer(string domain, address to) isDomainName(domain) onlyOwner(domain) public {
-        _transfer(domain, msg.sender, to);
-        _removeSellOrder(domain);
+    function domainServersLen(string _domain) constant public returns(uint) {
+        uint256 tokenId = uint256(keccak256(bytes(_domain)));
+        return domainServers[tokenId].length;
     }
 
-    function addSellOrder(string domain, uint price) isDomainName(domain) onlyOwner(domain) public {
-        _addSellOrder(domain, price);
-    }
-
-    function removeSellOrder(string domain) isDomainName(domain) onlyOwner(domain) public {
-        _removeSellOrder(domain);
-    }
-
-    function orderBuy(string domain) isDomainName(domain) payable public {
-        uint idx = ordersIdx[domain];
-        require(idx != 0);
-        require(orders[idx-1].price <= msg.value);
-        address owner = records[domain].owner;
-        owner.transfer(msg.value);
-        _transfer(domain, owner, msg.sender);
-        _removeSellOrder(domain);
+    function domainServer(string _domain, uint _idx) constant public returns(uint, string) {
+        uint256 tokenId = uint256(keccak256(bytes(_domain)));
+        uint addr = domainServers[tokenId][_idx];
+        return (addr, uintToIpAddr(addr));
     }
 }
-

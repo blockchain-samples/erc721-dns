@@ -1,7 +1,7 @@
 const BlockchainDNS = artifacts.require("./BlockchainDNS.sol");
 
 contract('Blockchain Domain infrastructure test', (accounts) => {
-    let dns;
+    let dns, googleToken, comodoToken;
 
     before(async () => {
         dns = await BlockchainDNS.deployed()
@@ -59,55 +59,126 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     });
 
     it('Check first account domains', async () => {
-        let count = dns.domainListingLen(accounts[0]);
-        let domain1 = dns.domainListing(accounts[0], 0);
-        let domain2 = dns.domainListing(accounts[0], 1);
+        let count = dns.balanceOf(accounts[0]);
+        let _token1 = dns.tokenOfOwnerByIndex(accounts[0], 0);
+        let _token2 = dns.tokenOfOwnerByIndex(accounts[0], 1);
+        googleToken = (await _token1).toString();
+        comodoToken = (await _token2).toString();
+        let domain1 = dns.tokenMetadata(googleToken);
+        let domain2 = dns.tokenMetadata(comodoToken);
         assert.equal((await count).toNumber(), 2);
         assert.equal((await domain1).toString(), 'google');
         assert.equal((await domain2).toString(), 'comodo');
     });
 
+    it('Approve Google to another account', async () => {
+        await dns.approve(accounts[2], googleToken);
+        let spender = await dns.approved(googleToken);
+        assert.equal(spender.toString(), accounts[2]);
+    })
+
     it('Transfer Google to second account', async () => {
-        await dns.transfer('google', accounts[1]);
+        await dns.transfer(accounts[1], googleToken);
+    });
+
+    it('Transfer must clear approve', async () => {
+        let spender = await dns.approved(googleToken);
+        assert.equal(spender.toString(), '0x0000000000000000000000000000000000000000');
     });
 
     it('Check first account domains', async () => {
-        let count = dns.domainListingLen(accounts[0]);
-        let domain = dns.domainListing(accounts[0], 0);
+        let count = dns.balanceOf(accounts[0]);
+        let token = dns.tokenOfOwnerByIndex(accounts[0], 0);
         assert.equal((await count).toNumber(), 1);
-        assert.equal((await domain).toString(), 'comodo');
+        assert.equal((await token).toString(), comodoToken);
     });
 
     it('Check second account domains', async () => {
-        let count = dns.domainListingLen(accounts[1]);
-        let domain = dns.domainListing(accounts[1], 0);
+        let count = dns.balanceOf(accounts[1]);
+        let token = dns.tokenOfOwnerByIndex(accounts[1], 0);
         assert.equal((await count).toNumber(), 1);
-        assert.equal((await domain).toString(), 'google');
+        assert.equal((await token).toString(), googleToken);
     });
 
-    it('Second account ordering google to sell', async () => {
-        await dns.addSellOrder('google', 5000, {from: accounts[1]});
+    it('First account unsuccessfully tried take unapproved domain', async () => {
+        let error = false;
+        try {
+            await dns.takeOwnership(googleToken);    
+        } catch(e) {
+            error = true;
+        }
+        assert.equal(error, true);
+    });
+
+    it('Second account approve Google domain to first account', async () => {
+        await dns.approve(accounts[0], googleToken, { from: accounts[1] });
+        let spender = await dns.approved(googleToken);
+        assert.equal(spender.toString(), accounts[0]);
+    });
+
+    it('First account takes Google domain', async () => {
+        await dns.takeOwnership(googleToken);
+        let owner = await dns.ownerOf(googleToken);
+        assert.equal(owner.toString(), accounts[0]);
+    });
+
+    it('Approve must be clean', async () => {
+        let spender = await dns.approved(googleToken);
+        assert.equal(spender.toString(), '0x0000000000000000000000000000000000000000');
+    });
+
+    it('Check first account domains', async () => {
+        let count = dns.balanceOf(accounts[0]);
+        let token1 = dns.tokenOfOwnerByIndex(accounts[0], 0);
+        let token2 = dns.tokenOfOwnerByIndex(accounts[0], 1);
+        assert.equal((await count).toNumber(), 2);
+        assert.equal((await token1).toString(), comodoToken);
+        assert.equal((await token2).toString(), googleToken);
+    });
+    
+    it('Check second account domains', async () => {
+        let count = dns.balanceOf(accounts[1]);
+        assert.equal((await count).toNumber(), 0);
+    });
+
+    it('First account order google to sell', async () => {
+        await dns.addSellOrder(googleToken, 5000);
     });
 
     it('Check google in sell orders', async () => {
         let count = (await dns.sellOrdersLen()).toNumber();
         let order = await dns.orders(0);
         assert.equal(count, 1);
-        assert.equal(order[0].toString(), 'google');
+        assert.equal(order[0].toString(), googleToken);
         assert.equal(order[1].toNumber(), 5000);
     });
 
-    it('First account execute order and buy google', async () => {
-        await dns.orderBuy('google', {value: 5000});
+    it('Second account unsuccessfuly tried buy with small price', async () => {
+        let error = false;
+        try {
+            await dns.buyOrder(googleToken, { from: accounts[1], value: 1000 });    
+        } catch(e) {
+            error = true;
+        }
+        assert.equal(error, true);
+    });
+
+    it('Second account execute order and buy google', async () => {
+            await dns.buyOrder(googleToken, { from: accounts[1], value: 5000 });
     });
 
     it('Check first account domains', async () => {
-        let count = dns.domainListingLen(accounts[0]);
-        let domain1 = dns.domainListing(accounts[0], 0);
-        let domain2 = dns.domainListing(accounts[0], 1);
-        assert.equal((await count).toNumber(), 2);
-        assert.equal((await domain1).toString(), 'comodo');
-        assert.equal((await domain2).toString(), 'google');
+        let count = dns.balanceOf(accounts[0]);
+        let token = dns.tokenOfOwnerByIndex(accounts[0], 0);
+        assert.equal((await count).toNumber(), 1);
+        assert.equal((await token).toString(), comodoToken);
+    });
+
+    it('Check second account domains', async () => {
+        let count = dns.balanceOf(accounts[1]);
+        let token = dns.tokenOfOwnerByIndex(accounts[1], 0);
+        assert.equal((await count).toNumber(), 1);
+        assert.equal((await token).toString(), googleToken);
     });
 
     it('Check no sell orders', async () => {

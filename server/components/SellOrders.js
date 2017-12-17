@@ -6,8 +6,6 @@ import Button from 'antd/lib/button';
 import 'antd/lib/button/style/css';
 import { orderBuy } from '../actions/submit';
 
-const web3 = window.web3;
-
 const SellOrders = (props) => {
     const { orders, orderBuy } = props;
     const columns = [{
@@ -16,7 +14,7 @@ const SellOrders = (props) => {
     }, {
         title: 'Price',
         dataIndex: 'price',
-        render: (r) => `${web3.fromWei(r)} ETH`
+        render: (r) => `${r} ETH`
     }, {
         render: (r) => (
             <Button onClick={() => orderBuy(r)}>
@@ -28,11 +26,8 @@ const SellOrders = (props) => {
     return (
       <Table columns={columns} rowKey='domain' dataSource={
         Object.keys(orders)
-            .filter(order => !!orders[order])
-            .map(order => ({
-                domain: order,
-                price: orders[order]
-            }))
+            .filter(token => !!orders[token])
+            .map(token => orders[token])
     }/>
 )};
 

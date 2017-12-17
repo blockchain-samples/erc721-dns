@@ -11,9 +11,10 @@ const DomainListing = (props) => (
             columns={[{title: 'Your domains', dataIndex: 'domain'}]}
             rowKey='domain'
             loading={props.domains === undefined}
-            dataSource={(props.domains||[])
-                .sort((a, b) => a.localeCompare(b))
-                .map(domain => ({domain}))
+            dataSource={Object.keys(props.domains||{})
+                .filter(token => !!props.domains[token])
+                .sort((a, b) => props.domains[a].domain.localeCompare(props.domains[b].domain))
+                .map(token => props.domains[token])
             }
             pagination={false}
             onRowClick={props.selectDomain}
@@ -21,6 +22,6 @@ const DomainListing = (props) => (
 );
 
 export default connect(
-    state => ({ domains: [...state.domains], selected: state.selected }),
+    state => ({ domains: state.domains, selected: state.selected }),
     {  selectDomain } 
 )(DomainListing);

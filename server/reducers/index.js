@@ -1,4 +1,4 @@
-export default function (state = { domains: new Set(), orders: {} }, action = {}) {
+export default function (state = { domains: {}, orders: {} }, action = {}) {
     switch (action.type) {
   
         case 'METAMASK_CRITICAL':
@@ -8,15 +8,17 @@ export default function (state = { domains: new Set(), orders: {} }, action = {}
             return { ...state, ...action.payload };
   
         case 'DOMAINS_RECEIVED':
-            return { ...state, domains: new Set(action.payload) };
+            return { ...state, domains: action.payload };
 
         case 'DOMAIN_ARRIVED':
-            return { ...state, domains: state.domains.add(action.payload) };
+            return { ...state, domains: {
+                ...state.domains, [action.payload.token]: action.payload
+            }};
 
         case 'DOMAIN_DEPARTED':
-            let _domains = new Set(state.domains);
-            _domains.delete(action.payload);
-            return { ...state, selected: undefined, domains: _domains };
+            return { ...state, selected: undefined, domains: {
+                ...state.domains, [action.payload]: undefined
+            } };
 
         case 'DOMAIN_SELECTED':
             return { ...state, selected: action.payload };
@@ -25,23 +27,16 @@ export default function (state = { domains: new Set(), orders: {} }, action = {}
             return { ...state, selected: undefined };
 
         case 'ORDERS_RECEIVED':
-            return { ...state, orders: action.payload.reduce((res, cur) => {
-                return {
-                    ...res,
-                    [cur[0].toString()]: cur[1].toNumber()
-                };
-            }, {})};
+            return { ...state, orders: action.payload };
         
         case 'ORDER_ADDED':
             return { ...state, orders: {
-                ...state.orders,
-                [action.payload.domain.toString()]: action.payload.price.toNumber()
+                ...state.orders, [action.payload.token]: action.payload
             }};
 
         case 'ORDER_REMOVED':
             return { ...state, orders: {
-                ...state.orders,
-                [action.payload.domain.toString()]: undefined
+                ...state.orders, [action.payload]: undefined
             }};
 
         default:

@@ -1,37 +1,51 @@
+import { promisify, web3 } from './utils';
 
 export function SubscribeContractEvents (contract, account, dispatch) {
 
+    const tokenMetadata = promisify(contract.tokenMetadata);
+
     contract
-    .DomainTransfered({ fromBlock: 'latest' })
-    .watch(function(error, result){
+    .Transfer({ fromBlock: 'latest' })
+    .watch(async (error, result) => {
         if (error) return console.log('EVENT ERROR', error.toString());
-        if (result.args.from === account) return dispatch({
+        if (result.args._from === account) return dispatch({
             type: 'DOMAIN_DEPARTED',
-            payload: result.args.domain
+            payload: web3.toHex(result.args._tokenId)
         });
-        if (result.args.to === account) return dispatch({
-            type: 'DOMAIN_ARRIVED',
-            payload: result.args.domain
-        });
+        if (result.args._to === account) {
+            let domain = await tokenMetadata(result.args._tokenId);
+            return dispatch({
+                type: 'DOMAIN_ARRIVED',
+                payload: {
+                    token: web3.toHex(result.args._tokenId),
+                    domain: domain.toString()
+                }
+            });
+        }
     });
 
     contract
     .SellOrderAdded({ fromBlock: 'latest' })
-    .watch(function(error, result){
+    .watch(async (error, result) => {
         if (error) return console.log('EVENT ERROR', error.toString());
+        let domain = await tokenMetadata(result.args.tokenId);
         dispatch({
             type: 'ORDER_ADDED',
-            payload: result.args
+            payload: {
+                token:  web3.toHex(result.args.tokenId),
+                domain: domain.toString(),
+                price: web3.fromWei(result.args.price, 'ether').toNumber()
+            }
         });
     });
 
     contract
     .SellOrderRemoved({ fromBlock: 'latest' })
-    .watch(function(error, result){
+    .watch((error, result) => {
         if (error) return console.log('EVENT ERROR', error.toString());
         dispatch({
             type: 'ORDER_REMOVED',
-            payload: result.args
+            payload: web3.toHex(result.args.tokenId)
         });
     });
 }
