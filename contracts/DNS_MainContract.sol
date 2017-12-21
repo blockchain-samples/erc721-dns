@@ -6,6 +6,16 @@ import "./DNS_Inet.sol";
 contract BlockchainDNS is ERC721, SellOrders, Inet {
     mapping (uint256 => uint256[]) domainServers;
 
+    function transfer(address _to, uint256 _tokenId) public onlyOwner(_tokenId) {
+        _transfer(msg.sender, _to, _tokenId);
+        _removeSellOrder(_tokenId);
+    }
+
+    function takeOwnership(uint256 _tokenId) public {
+        super.takeOwnership(_tokenId);
+        _removeSellOrder(_tokenId);
+    }
+
     function domainSet(string _domain, uint[] _servers) isDomainName(_domain) public {
         uint256 tokenId = uint256(keccak256(bytes(_domain)));
         address owner = tokenOwners[tokenId];

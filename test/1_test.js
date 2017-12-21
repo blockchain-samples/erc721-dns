@@ -75,7 +75,11 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         await dns.approve(accounts[2], googleToken);
         let spender = await dns.approved(googleToken);
         assert.equal(spender.toString(), accounts[2]);
-    })
+    });
+
+    it('Also order Google to sell', async () => {
+        await dns.addSellOrder(googleToken, 5000);
+    });
 
     it('Transfer Google to second account', async () => {
         await dns.transfer(accounts[1], googleToken);
@@ -84,6 +88,11 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     it('Transfer must clear approve', async () => {
         let spender = await dns.approved(googleToken);
         assert.equal(spender.toString(), '0x0000000000000000000000000000000000000000');
+    });
+
+    it('Transfer also clear orders', async () => {
+        let count = (await dns.sellOrdersLen()).toNumber();
+        assert.equal(count, 0);
     });
 
     it('Check first account domains', async () => {
@@ -110,6 +119,10 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
         assert.equal(error, true);
     });
 
+    it('Second account order Google to sell', async () => {
+        await dns.addSellOrder(googleToken, 5000, { from: accounts[1] });
+    });
+
     it('Second account approve Google domain to first account', async () => {
         await dns.approve(accounts[0], googleToken, { from: accounts[1] });
         let spender = await dns.approved(googleToken);
@@ -125,6 +138,11 @@ contract('Blockchain Domain infrastructure test', (accounts) => {
     it('Approve must be clean', async () => {
         let spender = await dns.approved(googleToken);
         assert.equal(spender.toString(), '0x0000000000000000000000000000000000000000');
+    });
+
+    it('Orders must be clean too', async () => {
+        let count = (await dns.sellOrdersLen()).toNumber();
+        assert.equal(count, 0);
     });
 
     it('Check first account domains', async () => {

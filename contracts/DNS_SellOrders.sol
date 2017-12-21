@@ -27,7 +27,7 @@ contract SellOrders is ERC721 {
         SellOrderAdded(_tokenId, _price);
     }
 
-    function _removeSellOrder(uint256 _tokenId) private {
+    function _removeSellOrder(uint256 _tokenId) internal {
         uint idx = ordersIdx[_tokenId];
         if (idx == 0) return;
         uint last = orders.length - 1;
